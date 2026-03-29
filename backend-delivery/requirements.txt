@@ -1,0 +1,15 @@
+# NBA Stats API - Backend Dependencies
+
+# Web 框架
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# NBA API
+nba_api>=1.11.4
+
+# 数据处理
+pandas>=2.1.4
+
+# 工具
+python-dotenv>=1.0.0
+requests>=2.31.0
