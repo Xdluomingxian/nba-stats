@@ -1,5 +1,79 @@
 # 更新日志 (Changelog)
 
+## [v1.2.0] - 2026-04-27
+
+### 新增功能
+
+#### 季后赛数据支持
+- 新增 `/api/playoff-career-stats` API 接口
+- 支持查询 LeBron James 季后赛生涯累计数据
+- 后端使用 `playercareerstats.PlayerCareerStats` + `season_totals_post_season` 获取数据
+
+#### 赛季类型切换
+- 首页新增常规赛/季后赛 Tab 切换组件
+- PC端和移动端均支持赛季类型切换
+- 根据选择的赛季类型动态展示对应数据
+- 无比赛时显示友好提示（"休赛期暂无比赛"/"季后赛暂无比赛"）
+
+### Bug修复
+
+#### 前端页面空白问题
+- **根因**：`lucide-react` 库中不存在 `Basketball` 图标，导致模块导入失败
+- **修复**：将 `Basketball` 替换为 `CircleDot` 图标
+- **影响文件**：`PCPoster.tsx`、`MobilePoster.tsx`
+
+#### 数据请求级联失败
+- **问题**：`Promise.all` 导致单个 API 失败时所有数据丢失
+- **修复**：改为独立 try/catch 请求，互不影响
+- **影响文件**：`useStats.ts`
+
+#### Windows 编码问题
+- 修复 `.env` 文件 GBK 解码错误（移除中文注释）
+- 修复日志中 emoji 字符无法编码问题
+
+#### slowapi 限流问题
+- 修复 `health_check()` 和 `get_playoff_career_stats()` 缺少 `request: Request` 参数
+
+### 优化改进
+
+#### 赛季计算优化
+- 修正赛季计算逻辑：月份 >= 10 使用当前年，月份 < 10 使用上一年
+- 修复日期解析问题：使用 `pd.to_datetime(format='mixed')` 正确解析日期
+- 修复日期排序：按实际日期排序而非字符串排序
+
+#### 数据真实性
+- 移除 `_get_mock_recent_game()` 模拟数据回退
+- API 无数据时返回 None，前端显示友好提示
+- 确保展示的所有数据均来自 NBA 官方 API
+
+#### 缓存优化
+- 比赛数据按赛季类型独立缓存（`recent_game_regular_season` / `recent_game_playoffs`）
+- 前端 localStorage 缓存有效期从 5 分钟缩短至 1 分钟
+
+#### 错误处理
+- 新增 `ErrorBoundary` 组件捕获渲染错误
+- API 请求使用 `safeFetch` 封装，失败时返回 null 而非抛出异常
+
+### 代码质量
+- 添加 `.gitignore` 配置文件
+- 修复 Git 合并冲突标记残留问题
+
+### 文件变更
+
+#### 新增文件
+- `frontend/src/components/ErrorBoundary.tsx` - 错误边界组件
+- `.gitignore` - Git 忽略规则配置
+
+#### 修改文件
+- `backend/nba_data_client.py` - 新增季后赛数据获取、赛季类型支持
+- `backend/main.py` - 新增 `/api/playoff-career-stats` 端点、修复 slowapi 参数
+- `frontend/src/hooks/useStats.ts` - 赛季类型状态管理、独立 API 请求
+- `frontend/src/api/statsApi.ts` - 新增 `fetchPlayoffCareerStats`、赛季类型参数
+- `frontend/src/pages/PCPoster.tsx` - 赛季类型切换、条件渲染
+- `frontend/src/pages/MobilePoster.tsx` - 赛季类型切换、条件渲染
+
+---
+
 ## [v1.1.0] - 2026-04-02
 
 ### 新增功能
@@ -104,7 +178,7 @@
 
 ## 版本规划
 
-### [v1.2.0] - 计划中
+### [v1.3.0] - 计划中
 - [ ] 完整湖人赛程数据导入
 - [ ] 比赛实时状态检测
 - [ ] 更多球员数据支持
@@ -115,3 +189,4 @@
 - [ ] 历史赛季数据查询
 - [ ] 用户自定义主题
 - [ ] 社交分享功能
+- [ ] 微信小程序版本

@@ -36,7 +36,10 @@ yarn-error.log*
 # Data cache (optional, can be removed if you want to track data)
 backend/data/cache_meta.json
 backend/data/recent_game.json
+backend/data/recent_game_regular_season.json
+backend/data/recent_game_playoffs.json
 backend/data/career_stats.json
+backend/data/playoff_career_stats.json
 backend/data/rankings.json
 
 # Test files

@@ -113,9 +113,10 @@ VITE_API_BASE_URL=http://localhost:3000/api
 
 | 接口 | 方法 | 路径 | 说明 |
 |------|------|------|------|
-| 今日战报 | GET | `/api/today-game` | 获取最近一场比赛数据 |
-| 生涯统计 | GET | `/api/career-stats` | 获取生涯累计数据及排名 |
-| 批量获取 | GET | `/api/all-stats` | 一次性获取所有数据 |
+| 今日战报 | GET | `/api/today-game?season_type=Regular Season\|Playoffs` | 获取最近一场比赛数据 |
+| 生涯统计 | GET | `/api/career-stats` | 获取常规赛生涯数据及排名 |
+| 季后赛生涯 | GET | `/api/playoff-career-stats` | 获取季后赛生涯数据 |
+| 批量获取 | GET | `/api/all-stats?season_type=Regular Season\|Playoffs` | 一次性获取所有数据 |
 | 健康检查 | GET | `/api/health` | 服务健康状态 |
 
 ## 🎨 功能特性
@@ -124,18 +125,21 @@ VITE_API_BASE_URL=http://localhost:3000/api
 - ✅ 响应式设计（PC端 + 移动端）
 - ✅ Lakers紫金主题配色
 - ✅ 实时数据展示（今日战报 + 生涯累计）
+- ✅ **赛季类型切换**：支持常规赛/季后赛数据切换
 - ✅ 历史排名对比
-- ✅ 自动5分钟刷新
+- ✅ 自动刷新（5分钟间隔 + 1分钟本地缓存）
 - ✅ 50+ shadcn/ui 组件
 - ✅ Mock/真实API切换
+- ✅ ErrorBoundary 错误边界保护
 
 ### 后端
 - ✅ FastAPI高性能框架
 - ✅ 对接NBA官方API (nba_api)
-- ✅ 自动回退Mock数据
 - ✅ CORS跨域支持
+- ✅ 速率限制（slowapi）
 - ✅ 详细的日志记录
 - ✅ 错误处理机制
+- ✅ 智能缓存（1小时比赛数据、24小时生涯数据、7天排名数据）
 
 ## 📱 截图预览
 
@@ -159,6 +163,25 @@ VITE_API_BASE_URL=http://localhost:3000/api
 - Pandas
 
 ## 📝 更新日志
+
+### v1.2.0 (2026-04-27)
+- **季后赛数据支持**：新增 `/api/playoff-career-stats` 接口，支持季后赛生涯数据查询
+- **赛季类型切换**：首页新增常规赛/季后赛 Tab 切换，用户可自由查看不同赛季类型数据
+- **后端优化**：
+  - `today-game` 接口新增 `season_type` 查询参数
+  - 比赛数据按赛季类型独立缓存
+  - 修复 slowapi 限流中间件参数缺失问题
+  - 修复 Windows 环境下 emoji 编码和 GBK 解码问题
+- **前端优化**：
+  - 修复 `Basketball` 图标不存在导致的页面空白问题
+  - 独立 API 请求逻辑，单个接口失败不影响其他数据展示
+  - 新增 ErrorBoundary 错误边界，提升容错能力
+  - 优化赛季计算逻辑（基于月份自动判断当前赛季）
+  - 修复日期解析和排序问题
+  - 移除 mock 数据回退，确保数据真实性
+- **代码质量**：
+  - 添加 `.gitignore` 配置，排除 node_modules、__pycache__、.env 等文件
+  - 修复 Git 合并冲突标记残留问题
 
 ### v1.1.0 (2026-04-02)
 - **API优化**：修复NBA API调用错误（PlayerGameLog、AllTimeLeadersGrids参数修正）

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Target, Basketball } from 'lucide-react';
+import { Trophy, Target, CircleDot } from 'lucide-react';
 import { useMemo } from 'react';
 import { useStats, type SeasonType } from '@/hooks/useStats';
 import { formatNumber, formatGap, formatDateCN, type RankingData } from '@/data/stats';
@@ -268,7 +268,7 @@ export default function PCPoster() {
                   </>
                 ) : (
                   <div className="py-8 text-center">
-                    <Basketball className="mx-auto mb-4 h-12 w-12 text-white/30" />
+                    <CircleDot className="mx-auto mb-4 h-12 w-12 text-white/30" />
                     <p className="text-sm text-white/50">
                       {isPlayoffMode ? '季后赛暂无比赛' : '休赛期暂无比赛'}
                     </p>
