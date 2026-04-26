@@ -1,0 +1,16 @@
+{
+  "opponent": "爵士",
+  "date": "2026-04-12",
+  "result": "W",
+  "points": 18,
+  "rebounds": 4,
+  "assists": 6,
+  "steals": 3,
+  "blocks": 0,
+  "minutes": 17.0,
+  "fgPercent": 40.0,
+  "threePercent": 0.0,
+  "ftPercent": 85.7,
+  "data_source": "NBA_API",
+  "last_updated": "2026-04-27T00:17:36.812466"
+}

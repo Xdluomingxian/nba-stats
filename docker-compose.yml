@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lebron-stats-api
+    ports:
+      - "3000:3000"
+    environment:
+      - ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+      - LOG_LEVEL=INFO
+      - NBA_API_TIMEOUT=30
+    volumes:
+      - ./backend/data:/app/data
+      - ./backend/logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

@@ -1,0 +1,12 @@
+{
+  "games": 1622,
+  "points": 43440,
+  "rebounds": 12095,
+  "assists": 12016,
+  "steals": 2417,
+  "blocks": 1185,
+  "minutes": 61029,
+  "tripleDoubles": 122,
+  "last_updated": "2026-04-27T00:17:38.017993",
+  "data_source": "NBA_API"
+}

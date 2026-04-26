@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(python -m py_compile main.py)",
+      "Bash(python -m py_compile nba_data_client.py)",
+      "Bash(python -m py_compile data_validator.py)",
+      "Bash(npx vite *)",
+      "Bash(netstat -ano)",
+      "Bash(tasklist *)",
+      "Bash(wmic process *)",
+      "Bash(taskkill *)",
+      "Bash(curl -s http://localhost:5173/)"
+    ]
+  }
+}
