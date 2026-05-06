@@ -31,7 +31,7 @@ except ImportError:
     RATE_LIMIT_AVAILABLE = False
     limiter = None
 
-__version__ = "1.1.0"
+__version__ = "1.3.0"
 
 # 配置日志（支持轮转，单文件最大 10MB，保留 5 个备份）
 os.makedirs("logs", exist_ok=True)

@@ -1,5 +1,88 @@
 # 更新日志 (Changelog)
 
+## [v1.3.0] - 2026-05-07
+
+### 代码清理
+
+#### 删除死代码文件
+- 删除 `backend/nba_data_client_legacy.py`（17KB 旧版客户端，无任何引用）
+- 删除 `frontend/src/hooks/useUnifiedStats.ts`（仅 re-export `useStats`）
+- 删除 `frontend/src/hooks/useMockStats.ts`（无任何组件引用）
+- 删除 `frontend/src/App.css`（未被任何文件 import）
+- 删除 `backend/test_fix.py`（临时测试文件）
+- 删除 `frontend/public/images/lebron-king.jpg`（未被引用）
+- 删除 `backend/package-lock.json`（Python 项目中的 npm 锁文件）
+- 删除 `frontend/src/api/statsApi.ts`（未被任何模块引用）
+
+#### 删除未使用的依赖
+- 前端移除 26 个未使用的 npm 包：`recharts`、`date-fns`、`zod`、`react-hook-form`、`cmdk`、`sonner`、`kimi-plugin-inspect-react` 等
+- 删除 51 个未使用的 shadcn/ui 组件文件，仅保留 `card` 和 `tabs`
+- 前端 `package.json` 依赖从 30+ 精简至 6 个
+
+### 架构优化
+
+#### 共享组件抽取
+- 新增 `frontend/src/components/stats/` 目录：
+  - `StatItem.tsx` — 统计项组件（支持 PC/移动端尺寸切换）
+  - `CareerStatWithRank.tsx` — 生涯数据+排名组合组件
+  - `StateComponents.tsx` — LoadingState 和 ErrorState 统一封装
+- 消除 `PCPoster.tsx` 和 `MobilePoster.tsx` 中 4 组重复组件定义
+
+### API 优化
+
+#### 前端
+- `useStats` hook 从 3 次独立 API 请求改为单次调用 `/api/all-stats`
+- 减少网络往返，提升首屏加载性能
+
+#### 后端
+- `/api/all-stats` 新增 `season_type` 查询参数支持
+- 响应中新增 `playoffCareer` 字段，返回季后赛生涯数据
+
+### Bug修复
+
+#### 缓存逻辑修复
+- **问题**：`saveLocalCache` 函数已定义但从未被调用，localStorage 缓存从未写入
+- **修复**：在 `useStats` 的 `fetchData` 成功后正确调用 `saveLocalCache`
+- **增强**：缓存数据结构新增 `playoffCareerStats` 字段
+
+#### Vite 端口冲突
+- **问题**：Windows Hyper-V 保留端口范围 5095-5194，导致 Vite 默认端口 5173 启动失败（`EACCES: permission denied`）
+- **修复**：端口从 5173 改为 3001，host 从 `0.0.0.0` 改为 `127.0.0.1`
+
+### 后端清理
+- 移除 `nba_data_client.py` 中未使用的 `RealTimeDataChecker` 实例化和 `data_validator` 导入
+- `data_validator.py` 中的 `RealTimeDataChecker` 类定义保留，后续如需可重新接入
+
+### 文件变更
+
+#### 新增文件
+- `frontend/src/components/stats/CareerStatWithRank.tsx`
+- `frontend/src/components/stats/StatItem.tsx`
+- `frontend/src/components/stats/StateComponents.tsx`
+- `frontend/src/components/stats/index.ts`
+
+#### 删除文件
+- `backend/nba_data_client_legacy.py`
+- `backend/test_fix.py`
+- `backend/package-lock.json`
+- `frontend/src/App.css`
+- `frontend/src/api/statsApi.ts`
+- `frontend/public/images/lebron-king.jpg`
+- `frontend/src/hooks/useUnifiedStats.ts`
+- `frontend/src/hooks/useMockStats.ts`
+- `frontend/src/components/ui/accordion.tsx` 等 51 个未使用的 UI 组件
+
+#### 修改文件
+- `frontend/package.json` — 精简依赖
+- `frontend/vite.config.ts` — 端口、chunk 配置
+- `frontend/src/hooks/useStats.ts` — 批量接口、缓存修复
+- `frontend/src/pages/PCPoster.tsx` — 使用共享组件
+- `frontend/src/pages/MobilePoster.tsx` — 使用共享组件
+- `backend/main.py` — `/api/all-stats` 增强
+- `backend/nba_data_client.py` — 移除未使用的 `RealTimeDataChecker`
+
+---
+
 ## [v1.2.0] - 2026-04-27
 
 ### 新增功能

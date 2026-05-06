@@ -5,7 +5,7 @@
 ## 🏀 项目简介
 
 本项目整合了：
-- **前端**：美观的 React + TypeScript + Tailwind CSS 界面（Lakers紫金主题）
+- **前端**：简洁的 React + TypeScript + Tailwind CSS 界面（Lakers紫金主题）
 - **后端**：FastAPI + nba_api 实时获取NBA官方数据
 - **数据**：真实比赛数据 + 生涯统计 + 历史排名
 
@@ -17,15 +17,17 @@ lebron-stats-fullstack/
 │   ├── src/
 │   │   ├── pages/       # PC端和移动端页面
 │   │   ├── hooks/       # 数据获取Hooks
-│   │   ├── components/ui/  # 50+ UI组件
-│   │   └── api/         # API接口
+│   │   ├── components/  # 共享组件 (stats, ui)
+│   │   ├── mock/        # Mock数据
+│   │   └── data/        # 类型定义
 │   ├── public/images/   # 静态资源
 │   └── package.json
 │
 ├── 📁 backend/          # 后端项目 (FastAPI)
-│   ├── main.py          # API入口
+│   ├── main.py          # API入口 (4个端点)
 │   ├── nba_data_client.py  # NBA数据客户端
-│   ├── data/            # 数据文件
+│   ├── data_validator.py   # 数据校验
+│   ├── data/            # 缓存文件
 │   └── requirements.txt
 │
 ├── 📁 scripts/          # 启动脚本
@@ -34,7 +36,7 @@ lebron-stats-fullstack/
 │   └── start-all.ps1        # Windows一键启动
 │
 ├── 📄 README.md         # 项目说明
-└── 📄 .env              # 环境变量配置
+└── 📄 CHANGELOG.md      # 更新日志
 ```
 
 ## 🚀 快速开始
@@ -78,7 +80,7 @@ npm install
 npm run dev
 ```
 
-前端服务将在 http://localhost:5173 启动
+前端服务将在 http://localhost:3001 启动
 
 ### 方式二：使用脚本一键启动（Windows）
 
@@ -93,7 +95,7 @@ npm run dev
 
 ```bash
 # CORS允许的前端地址（多个用逗号分隔）
-ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+ALLOWED_ORIGINS=http://localhost:3001,http://127.0.0.1:3001
 
 # 可选：NBA API相关配置
 NBA_API_TIMEOUT=30
@@ -116,7 +118,7 @@ VITE_API_BASE_URL=http://localhost:3000/api
 | 今日战报 | GET | `/api/today-game?season_type=Regular Season\|Playoffs` | 获取最近一场比赛数据 |
 | 生涯统计 | GET | `/api/career-stats` | 获取常规赛生涯数据及排名 |
 | 季后赛生涯 | GET | `/api/playoff-career-stats` | 获取季后赛生涯数据 |
-| 批量获取 | GET | `/api/all-stats?season_type=Regular Season\|Playoffs` | 一次性获取所有数据 |
+| 批量获取 | GET | `/api/all-stats?season_type=Regular Season\|Playoffs` | 一次性获取所有数据（推荐） |
 | 健康检查 | GET | `/api/health` | 服务健康状态 |
 
 ## 🎨 功能特性
@@ -128,7 +130,7 @@ VITE_API_BASE_URL=http://localhost:3000/api
 - ✅ **赛季类型切换**：支持常规赛/季后赛数据切换
 - ✅ 历史排名对比
 - ✅ 自动刷新（5分钟间隔 + 1分钟本地缓存）
-- ✅ 50+ shadcn/ui 组件
+- ✅ 批量接口优化（单次请求获取全部数据）
 - ✅ Mock/真实API切换
 - ✅ ErrorBoundary 错误边界保护
 
@@ -152,8 +154,7 @@ VITE_API_BASE_URL=http://localhost:3000/api
 - React 19 + TypeScript
 - Vite 7
 - Tailwind CSS 3.4
-- Radix UI + shadcn/ui
-- Recharts（图表）
+- Radix UI (Tabs) + shadcn/ui (Card, Tabs)
 
 ### 后端
 - Python 3.8+
@@ -164,7 +165,15 @@ VITE_API_BASE_URL=http://localhost:3000/api
 
 ## 📝 更新日志
 
-### v1.2.0 (2026-04-27)
+详见 [CHANGELOG.md](./CHANGELOG.md)
+
+### v1.3.0 (2026-05-07)
+- **代码清理**：删除 8 个死代码文件、26 个未使用的 npm 依赖、51 个未使用的 UI 组件
+- **架构优化**：抽取共享组件（StatItem、CareerStatWithRank、LoadingState、ErrorState），消除 PC/移动端重复代码
+- **API 优化**：前端改用 `/api/all-stats` 批量接口，3 次请求合并为 1 次，后端接口新增 `season_type` 参数和季后赛数据
+- **缓存修复**：修复 localStorage 缓存未写入问题（`saveLocalCache` 之前从未被调用）
+- **后端清理**：移除未使用的 `RealTimeDataChecker` 实例化和 `data_validator.py` 导入
+- **端口修复**：Vite 端口从 5173 改为 3001，解决 Windows Hyper-V 保留端口冲突
 - **季后赛数据支持**：新增 `/api/playoff-career-stats` 接口，支持季后赛生涯数据查询
 - **赛季类型切换**：首页新增常规赛/季后赛 Tab 切换，用户可自由查看不同赛季类型数据
 - **后端优化**：
