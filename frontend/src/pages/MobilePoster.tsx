@@ -3,112 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Trophy, Target, CircleDot } from 'lucide-react';
 import { useMemo } from 'react';
 import { useStats, type SeasonType } from '@/hooks/useStats';
-import { formatNumber, formatGap, formatDateCN, type RankingData } from '@/data/stats';
-
-// 统计项组件（移动端优化）
-interface StatItemProps {
-  label: string;
-  value: string | number;
-  suffix?: string;
-  highlight?: boolean;
-  small?: boolean;
-}
-
-const StatItem = ({
-  label,
-  value,
-  suffix = '',
-  highlight = false,
-  small = false,
-}: StatItemProps) => (
-  <div
-    className={`flex flex-col items-center p-2 ${small ? 'py-2' : 'py-3'} rounded-lg border border-white/10 bg-gradient-to-b from-white/10 to-white/5`}
-  >
-    <span
-      className={`text-white/60 ${small ? 'text-[10px]' : 'text-xs'} mb-0.5 uppercase tracking-wider`}
-    >
-      {label}
-    </span>
-    <div className="flex items-baseline gap-0.5">
-      <span
-        className={`${small ? 'text-lg' : 'text-xl'} font-black ${highlight ? 'text-[#FDB927]' : 'text-white'}`}
-      >
-        {value}
-      </span>
-      {suffix && <span className="text-xs text-white/50">{suffix}</span>}
-    </div>
-  </div>
-);
-
-// 生涯累计+排名 组合组件（移动端）
-interface CareerStatWithRankProps {
-  label: string;
-  value: number;
-  rank: number;
-  gapToPrev: number;
-  prevPlayerName: string;
-  highlight?: boolean;
-}
-
-const CareerStatWithRank = ({
-  label,
-  value,
-  rank,
-  gapToPrev,
-  prevPlayerName,
-  highlight = false,
-}: CareerStatWithRankProps) => (
-  <div className="overflow-hidden rounded-lg border border-white/10 bg-gradient-to-b from-white/10 to-white/5">
-    {/* 统计值 */}
-    <div className="p-3 text-center">
-      <span className={`${highlight ? 'text-[#FDB927]' : 'text-white'} block text-xl font-black`}>
-        {formatNumber(value)}
-      </span>
-      <span className="text-[10px] uppercase tracking-wider text-white/60">{label}</span>
-    </div>
-
-    {/* 排名信息 */}
-    <div className="border-t border-white/10 bg-black/20 px-2 py-1.5">
-      <div className="flex items-center justify-between">
-        <span
-          className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
-            rank === 1
-              ? 'bg-[#FDB927] text-black'
-              : rank <= 3
-                ? 'bg-white/20 text-[#FDB927]'
-                : 'bg-white/10 text-white/70'
-          }`}
-        >
-          #{rank}
-        </span>
-        <span className={`text-[10px] ${rank === 1 ? 'text-[#FDB927]' : 'text-white/60'}`}>
-          {formatGap(rank, gapToPrev, prevPlayerName)}
-        </span>
-      </div>
-    </div>
-  </div>
-);
-
-// 加载状态组件
-const LoadingState = () => (
-  <div className="flex h-32 items-center justify-center">
-    <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-[#FDB927]"></div>
-    <span className="ml-2 text-sm text-white/60">加载中...</span>
-  </div>
-);
-
-// 错误状态组件
-const ErrorState = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
-  <div className="flex h-32 flex-col items-center justify-center px-4 text-center">
-    <p className="mb-2 text-sm text-red-400">{message}</p>
-    <button
-      onClick={onRetry}
-      className="rounded-lg bg-[#FDB927] px-3 py-1.5 text-xs font-semibold text-black transition-colors hover:bg-[#FDB927]/80"
-    >
-      重试
-    </button>
-  </div>
-);
+import { formatDateCN, type RankingData } from '@/data/stats';
+import { StatItem, CareerStatWithRank, LoadingState, ErrorState } from '@/components/stats';
 
 // 移动端海报组件
 export default function MobilePoster() {
@@ -141,7 +37,7 @@ export default function MobilePoster() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black">
-        <LoadingState />
+        <LoadingState small />
       </div>
     );
   }
@@ -149,7 +45,7 @@ export default function MobilePoster() {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black">
-        <ErrorState message={error} onRetry={refetch} />
+        <ErrorState message={error} onRetry={refetch} small />
       </div>
     );
   }
@@ -157,7 +53,7 @@ export default function MobilePoster() {
   if (!displayCareerStats) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black">
-        <ErrorState message="数据加载失败" onRetry={refetch} />
+        <ErrorState message="数据加载失败" onRetry={refetch} small />
       </div>
     );
   }
@@ -331,14 +227,14 @@ export default function MobilePoster() {
               <CardContent className="space-y-3">
                 {/* 第一行：出场、得分、篮板、助攻 */}
                 <div className="grid grid-cols-4 gap-2">
-                  <CareerStatWithRank
+                  <CareerStatWithRank small
                     label="出场"
                     value={displayCareerStats.games}
                     rank={getRanking('总出场')?.rank || 1}
                     gapToPrev={getRanking('总出场')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总出场')?.prevPlayerName || ''}
                   />
-                  <CareerStatWithRank
+                  <CareerStatWithRank small
                     label="得分"
                     value={displayCareerStats.points}
                     rank={getRanking('总得分')?.rank || 1}
@@ -346,14 +242,14 @@ export default function MobilePoster() {
                     prevPlayerName={getRanking('总得分')?.prevPlayerName || ''}
                     highlight
                   />
-                  <CareerStatWithRank
+                  <CareerStatWithRank small
                     label="篮板"
                     value={displayCareerStats.rebounds}
                     rank={getRanking('总篮板')?.rank || 23}
                     gapToPrev={getRanking('总篮板')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总篮板')?.prevPlayerName || ''}
                   />
-                  <CareerStatWithRank
+                  <CareerStatWithRank small
                     label="助攻"
                     value={displayCareerStats.assists}
                     rank={getRanking('总助攻')?.rank || 4}
@@ -364,28 +260,28 @@ export default function MobilePoster() {
 
                 {/* 第二行：抢断、盖帽、时间、三双 */}
                 <div className="grid grid-cols-4 gap-2">
-                  <CareerStatWithRank
+                  <CareerStatWithRank small
                     label="抢断"
                     value={displayCareerStats.steals}
                     rank={getRanking('总抢断')?.rank || 8}
                     gapToPrev={getRanking('总抢断')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总抢断')?.prevPlayerName || ''}
                   />
-                  <CareerStatWithRank
+                  <CareerStatWithRank small
                     label="盖帽"
                     value={displayCareerStats.blocks}
                     rank={getRanking('总盖帽')?.rank || 78}
                     gapToPrev={getRanking('总盖帽')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总盖帽')?.prevPlayerName || ''}
                   />
-                  <CareerStatWithRank
+                  <CareerStatWithRank small
                     label="时间"
                     value={displayCareerStats.minutes}
                     rank={getRanking('总时间')?.rank || 2}
                     gapToPrev={getRanking('总时间')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总时间')?.prevPlayerName || ''}
                   />
-                  <CareerStatWithRank
+                  <CareerStatWithRank small
                     label="三双"
                     value={displayCareerStats.tripleDoubles}
                     rank={getRanking('总三双')?.rank || 5}

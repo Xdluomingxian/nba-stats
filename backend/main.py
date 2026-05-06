@@ -172,23 +172,28 @@ async def get_career_stats():
 
 
 @app.get("/api/all-stats")
-async def get_all_stats(request: Request):
+async def get_all_stats(request: Request, season_type: str = "Regular Season"):
     """
     批量获取所有数据
 
-    一次性获取今日战报和生涯数据，减少前端请求次数
+    一次性获取今日战报、常规赛/季后赛生涯数据和历史排名，减少前端请求次数
     支持时区转换（根据客户端IP）
+
+    Args:
+        season_type: 赛季类型（Regular Season / Playoffs）
     """
     try:
         client_ip = request.client.host if request.client else None
 
-        game_data = client.get_lebron_recent_game(client_ip)
+        game_data = client.get_lebron_recent_game(client_ip, season_type=season_type)
         career_stats = client.get_lebron_career_stats()
         rankings = client.get_historical_rankings(career_stats)
+        playoff_stats = client.get_lebron_playoff_career_stats()
 
         return {
             "todayGame": game_data,
             "career": {"stats": career_stats, "rankings": rankings},
+            "playoffCareer": {"stats": playoff_stats} if playoff_stats else None,
         }
 
     except Exception as e:

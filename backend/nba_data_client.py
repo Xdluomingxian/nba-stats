@@ -18,7 +18,7 @@ from pathlib import Path
 
 # 导入数据校验模块
 try:
-    from data_validator import DataValidator, RealTimeDataChecker
+    from data_validator import DataValidator
 
     VALIDATOR_AVAILABLE = True
     print("数据校验模块导入成功")
@@ -246,10 +246,8 @@ class NBADataClient:
         # 初始化数据校验器
         if VALIDATOR_AVAILABLE:
             self.validator = DataValidator()
-            self.realtime_checker = RealTimeDataChecker(self)
         else:
             self.validator = None
-            self.realtime_checker = None
 
     def _add_request_delay(self):
         """添加随机延迟，避免请求过于频繁"""

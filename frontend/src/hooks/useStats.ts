@@ -39,6 +39,7 @@ interface UseStatsReturn {
 interface DataCache {
   todayGame: TodayGameStats | null;
   careerStats: CareerStats | null;
+  playoffCareerStats: CareerStats | null;
   rankings: RankingData[];
   timestamp: number;
 }
@@ -108,6 +109,12 @@ export function useStats(): UseStatsReturn {
         setCareerStats(career.stats);
         setRankings(career.rankings);
         setLastUpdated(new Date());
+        saveLocalCache({
+          todayGame: game,
+          careerStats: career.stats,
+          rankings: career.rankings,
+          timestamp: Date.now(),
+        });
       } else {
         const currentSeasonType = seasonTypeRef.current;
         const timestamp = Date.now();
@@ -115,62 +122,38 @@ export function useStats(): UseStatsReturn {
 
         console.log(`[useStats] 获取数据 (赛季: ${currentSeasonType})...`);
 
-        // 独立请求，互不影响
-        // 1. 获取战报数据
-        const gameRes = await safeFetch(
-          `${API_BASE_URL}/today-game?season_type=${encodeURIComponent(currentSeasonType)}&${cacheParam}`
+        // 使用批量接口，一次请求获取所有数据
+        const allRes = await safeFetch(
+          `${API_BASE_URL}/all-stats?season_type=${encodeURIComponent(currentSeasonType)}&${cacheParam}`
         );
-        if (gameRes && gameRes.ok) {
+        if (allRes && allRes.ok) {
           try {
-            const gameData = await gameRes.json();
-            const actualGameData = gameData.game !== undefined ? gameData.game : gameData;
-            setTodayGame(actualGameData);
+            const data = await allRes.json();
+            const gameData = data.todayGame?.game !== undefined ? data.todayGame.game : data.todayGame;
+            setTodayGame(gameData);
+            if (data.career?.stats) {
+              setCareerStats(data.career.stats);
+            }
+            if (data.career?.rankings) {
+              setRankings(data.career.rankings);
+            }
+            if (data.playoffCareer?.stats) {
+              setPlayoffCareerStats(data.playoffCareer.stats);
+            }
+            setLastUpdated(new Date());
+            saveLocalCache({
+              todayGame: gameData,
+              careerStats: data.career?.stats || null,
+              playoffCareerStats: data.playoffCareer?.stats || null,
+              rankings: data.career?.rankings || [],
+              timestamp: Date.now(),
+            });
           } catch (e) {
-            console.error('[useStats] 解析战报数据失败', e);
-            setTodayGame(null);
+            console.error('[useStats] 解析数据失败', e);
           }
         } else {
-          console.warn('[useStats] 战报API不可用');
-          setTodayGame(null);
+          console.warn('[useStats] all-stats API 不可用');
         }
-
-        // 2. 获取生涯数据
-        const careerRes = await safeFetch(`${API_BASE_URL}/career-stats?${cacheParam}`);
-        if (careerRes && careerRes.ok) {
-          try {
-            const careerData = await careerRes.json();
-            if (careerData.stats) {
-              setCareerStats(careerData.stats);
-            }
-            if (careerData.rankings) {
-              setRankings(careerData.rankings);
-            }
-          } catch (e) {
-            console.error('[useStats] 解析生涯数据失败', e);
-          }
-        } else {
-          console.warn('[useStats] 生涯数据API不可用');
-        }
-
-        // 3. 获取季后赛数据
-        const playoffRes = await safeFetch(`${API_BASE_URL}/playoff-career-stats?${cacheParam}`);
-        if (playoffRes && playoffRes.ok) {
-          try {
-            const playoffData = await playoffRes.json();
-            if (playoffData.stats) {
-              setPlayoffCareerStats(playoffData.stats);
-            }
-          } catch (e) {
-            console.error('[useStats] 解析季后赛数据失败', e);
-          }
-        } else {
-          console.warn('[useStats] 季后赛数据API不可用');
-        }
-
-        setLastUpdated(new Date());
-
-        // 保存缓存
-        // Note: 这里用当前state值，在async中可能不是最新的，但足够用了
       }
     } catch (err) {
       console.error('[useStats] 获取数据失败:', err);
