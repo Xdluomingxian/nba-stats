@@ -1,5 +1,56 @@
 # 更新日志 (Changelog)
 
+## [v1.4.0] - 2026-05-08
+
+### Bug修复
+
+#### 季后赛数据展示优化
+
+- **季后赛模式显示常规赛排名问题**
+  - **问题**：切换到季后赛模式时，生涯数据卡片底部仍显示常规赛排名（如出场排名 #1 基于 1622 场），与季后赛累计数据（299 场）不匹配
+  - **原因**：前端 `rankings` 始终来自常规赛接口，季后赛数据不含独立排名
+  - **修复**：`CareerStatWithRank` 组件新增 `hideRank` prop，季后赛模式下隐藏底部排名徽章，仅保留数值展示
+  - **影响文件**：`CareerStatWithRank.tsx`、`PCPoster.tsx`、`MobilePoster.tsx`
+
+- **总时间排名对比值为 0**
+  - **问题**：常规赛累计页面"总时间"排名显示"贾巴尔 (0 分钟)"，差距显示 61,029
+  - **原因**：`AllTimeLeadersGrids` API 不提供 MIN（上场时间）排名数据，`_build_ranking_data` 传入 `leaders_df=None` 后 fallback 到 `prevPlayerValue: 0`
+  - **修复**：硬编码 NBA 历史总时间前几位球员数据（贾巴尔 57,446 分钟等），`_build_ranking_data` 遇到"总时间"类别时使用该数据
+  - **结果**：詹姆斯 61,029 分钟，排名 #1，领先贾巴尔 3,583 分钟
+  - **影响文件**：`nba_data_client.py`
+
+#### 前端 TypeScript 编译警告
+
+- 修复 `useStats.ts` 中 `NodeJS.Timeout` 类型改为 `ReturnType<typeof setInterval>`
+- 修复 `saveLocalCache` 调用缺少 `playoffCareerStats` 字段
+- 移除未使用的 `loadLocalCache` 函数和 `MAX_CACHE_AGE` 常量
+- 移除 `vite.config.ts` 中未使用的 `loadEnv` 调用
+- 移除 `PCPoster.tsx` 中未使用的 `TabsContent` 导入
+- **结果**：`npm run build` 零警告通过
+
+### 数据源优化
+
+#### 季后赛生涯数据获取方式改进
+
+- **优化前**：使用 `season_totals_post_season` 获取所有季后赛赛季数据后逐赛季求和
+- **优化后**：使用 `career_totals_post_season` 直接返回累计行（单行数据）
+- **优势**：减少数据处理量，避免浮点精度问题，与 NBA API 官方累计值一致
+- **影响文件**：`nba_data_client.py` (`get_lebron_playoff_career_stats`)
+
+### 文件变更
+
+#### 修改文件
+- `backend/nba_data_client.py` — 优化季后赛数据获取、修复总时间排名
+- `frontend/src/components/stats/CareerStatWithRank.tsx` — 新增 `hideRank` prop
+- `frontend/src/pages/PCPoster.tsx` — 季后赛模式隐藏排名
+- `frontend/src/pages/MobilePoster.tsx` — 季后赛模式隐藏排名
+- `frontend/src/hooks/useStats.ts` — 修复 TS 类型和缓存字段
+- `frontend/vite.config.ts` — 移除未使用导入
+- `README.md` — 更新 v1.4.0 说明
+- `CHANGELOG.md` — 新增 v1.4.0 记录
+
+---
+
 ## [v1.3.0] - 2026-05-07
 
 ### 代码清理

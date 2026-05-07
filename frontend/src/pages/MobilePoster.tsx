@@ -233,6 +233,7 @@ export default function MobilePoster() {
                     rank={getRanking('总出场')?.rank || 1}
                     gapToPrev={getRanking('总出场')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总出场')?.prevPlayerName || ''}
+                    hideRank={isPlayoffMode}
                   />
                   <CareerStatWithRank small
                     label="得分"
@@ -241,6 +242,7 @@ export default function MobilePoster() {
                     gapToPrev={getRanking('总得分')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总得分')?.prevPlayerName || ''}
                     highlight
+                    hideRank={isPlayoffMode}
                   />
                   <CareerStatWithRank small
                     label="篮板"
@@ -248,6 +250,7 @@ export default function MobilePoster() {
                     rank={getRanking('总篮板')?.rank || 23}
                     gapToPrev={getRanking('总篮板')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总篮板')?.prevPlayerName || ''}
+                    hideRank={isPlayoffMode}
                   />
                   <CareerStatWithRank small
                     label="助攻"
@@ -255,6 +258,7 @@ export default function MobilePoster() {
                     rank={getRanking('总助攻')?.rank || 4}
                     gapToPrev={getRanking('总助攻')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总助攻')?.prevPlayerName || ''}
+                    hideRank={isPlayoffMode}
                   />
                 </div>
 
@@ -266,6 +270,7 @@ export default function MobilePoster() {
                     rank={getRanking('总抢断')?.rank || 8}
                     gapToPrev={getRanking('总抢断')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总抢断')?.prevPlayerName || ''}
+                    hideRank={isPlayoffMode}
                   />
                   <CareerStatWithRank small
                     label="盖帽"
@@ -273,6 +278,7 @@ export default function MobilePoster() {
                     rank={getRanking('总盖帽')?.rank || 78}
                     gapToPrev={getRanking('总盖帽')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总盖帽')?.prevPlayerName || ''}
+                    hideRank={isPlayoffMode}
                   />
                   <CareerStatWithRank small
                     label="时间"
@@ -280,6 +286,7 @@ export default function MobilePoster() {
                     rank={getRanking('总时间')?.rank || 2}
                     gapToPrev={getRanking('总时间')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总时间')?.prevPlayerName || ''}
+                    hideRank={isPlayoffMode}
                   />
                   <CareerStatWithRank small
                     label="三双"
@@ -287,6 +294,7 @@ export default function MobilePoster() {
                     rank={getRanking('总三双')?.rank || 5}
                     gapToPrev={getRanking('总三双')?.gapToPrev || 0}
                     prevPlayerName={getRanking('总三双')?.prevPlayerName || ''}
+                    hideRank={isPlayoffMode}
                   />
                 </div>
 

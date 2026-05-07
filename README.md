@@ -167,6 +167,13 @@ VITE_API_BASE_URL=http://localhost:3000/api
 
 详见 [CHANGELOG.md](./CHANGELOG.md)
 
+### v1.4.0 (2026-05-08)
+- **数据源优化**：季后赛生涯数据改用 `career_totals_post_season`（直接返回累计行），替代之前的逐赛季求和方式，数据更可靠
+- **季后赛排名修复**：季后赛模式下隐藏常规赛排名徽章，避免显示不匹配的排名数据（如季后赛299场却显示常规赛#1出场排名）
+- **总时间排名修复**：`get_historical_rankings` 中 MIN 数据原为 `None` 导致排名对比值显示为 0，现硬编码 NBA 历史总时间排名（贾巴尔 57,446 分钟），正确显示詹姆斯领先 3,583 分钟
+- **前端类型修复**：修复 `useStats.ts` 中 `NodeJS.Timeout` 类型、缓存字段缺失、未使用变量等 TS 编译警告
+- **构建修复**：移除未使用的 `loadEnv` 和 `TabsContent` 导入，前端 `npm run build` 零警告通过
+
 ### v1.3.0 (2026-05-07)
 - **代码清理**：删除 8 个死代码文件、26 个未使用的 npm 依赖、51 个未使用的 UI 组件
 - **架构优化**：抽取共享组件（StatItem、CareerStatWithRank、LoadingState、ErrorState），消除 PC/移动端重复代码

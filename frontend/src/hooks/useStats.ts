@@ -16,7 +16,6 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 // 数据校验配置
 const REFRESH_INTERVAL = 5 * 60 * 1000; // 5分钟自动刷新一次
-const MAX_CACHE_AGE = 60 * 1000; // 本地缓存最大有效期1分钟
 
 // 赛季类型
 export type SeasonType = 'Regular Season' | 'Playoffs';
@@ -43,21 +42,6 @@ interface DataCache {
   rankings: RankingData[];
   timestamp: number;
 }
-
-const loadLocalCache = (): DataCache | null => {
-  try {
-    const cached = localStorage.getItem('lebron_stats_cache');
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (Date.now() - parsed.timestamp < MAX_CACHE_AGE) {
-        return parsed;
-      }
-    }
-  } catch (e) {
-    // ignore
-  }
-  return null;
-};
 
 const saveLocalCache = (data: DataCache) => {
   try {
@@ -112,6 +96,7 @@ export function useStats(): UseStatsReturn {
         saveLocalCache({
           todayGame: game,
           careerStats: career.stats,
+          playoffCareerStats: null,
           rankings: career.rankings,
           timestamp: Date.now(),
         });
@@ -166,7 +151,7 @@ export function useStats(): UseStatsReturn {
   useEffect(() => {
     fetchData();
 
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     if (!USE_MOCK) {
       interval = setInterval(() => {
         fetchData();

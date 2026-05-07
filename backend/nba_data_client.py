@@ -501,7 +501,7 @@ class NBADataClient:
             force_refresh: 是否强制刷新，跳过缓存
         """
         cache_key = "playoff_career_stats"
-        
+
         if not self.use_real_api:
             print("[季后赛生涯数据] NBA API不可用，返回空数据")
             return {}
@@ -520,30 +520,32 @@ class NBADataClient:
             print("[季后赛生涯数据] 从NBA API获取最新数据...")
             self._add_request_delay()
             career = playercareerstats.PlayerCareerStats(player_id=self.LEBRON_ID)
-            playoff_season = career.season_totals_post_season.get_data_frame()
+            # 使用career_totals_post_season（单行累计数据，比sum更可靠）
+            playoff_career = career.career_totals_post_season.get_data_frame()
 
-            if not playoff_season.empty:
-                # 计算季后赛总数据
+            if not playoff_career.empty:
+                row = playoff_career.iloc[0]
                 api_career_data = {
-                    "games": int(playoff_season["GP"].sum()),
-                    "points": int(playoff_season["PTS"].sum()),
-                    "rebounds": int(playoff_season["REB"].sum()),
-                    "assists": int(playoff_season["AST"].sum()),
-                    "steals": int(playoff_season["STL"].sum()),
-                    "blocks": int(playoff_season["BLK"].sum()),
-                    "minutes": int(playoff_season["MIN"].sum()),
-                    "tripleDoubles": 28,  # 季后赛三双数据
+                    "games": int(row.get("GP", 0)),
+                    "points": int(row.get("PTS", 0)),
+                    "rebounds": int(row.get("REB", 0)),
+                    "assists": int(row.get("AST", 0)),
+                    "steals": int(row.get("STL", 0)),
+                    "blocks": int(row.get("BLK", 0)),
+                    "minutes": int(row.get("MIN", 0)),
+                    # 季后赛三双（NBA API不提供此字段，需手动更新）
+                    "tripleDoubles": 28,
                     "last_updated": datetime.now().isoformat(),
                     "data_source": "NBA_API",
                     "season_type": "Playoffs",
                 }
-                
+
                 print(f"[季后赛生涯数据] API返回数据：")
                 print(f"  - 出场：{api_career_data['games']}, "
                       f"得分：{api_career_data['points']}, "
                       f"篮板：{api_career_data['rebounds']}, "
                       f"助攻：{api_career_data['assists']}")
-                
+
                 # 保存到缓存
                 self.cache.save_data(cache_key, api_career_data)
                 return api_career_data
@@ -731,10 +733,34 @@ class NBADataClient:
 
         return rankings
 
+    # NBA历史总时间排名（AllTimeLeadersGrids不提供MIN数据，需硬编码）
+    MIN_ALLTIME_LEADERS = [
+        ("Kareem Abdul-Jabbar", 57446),
+        ("Karl Malone", 54852),
+        ("Jason Kidd", 50111),
+        ("Dirk Nowitzki", 50000),
+        ("Elvin Hayes", 50000),
+    ]
+
     def _build_ranking_data(
         self, category: str, lebron_value: int, leaders_df, default_prev_name: str
     ) -> Dict[str, Any]:
         """构建排名数据"""
+        # 特殊处理总时间排名（MIN不在AllTimeLeadersGrids中）
+        if category == "总时间" and leaders_df is None:
+            lebron_rank = 1  # 詹姆斯已超越贾巴尔
+            prev_name = "贾巴尔"
+            prev_value = self.MIN_ALLTIME_LEADERS[0][1]
+            gap_to_prev = lebron_value - prev_value
+            return {
+                "category": category,
+                "careerValue": lebron_value,
+                "rank": lebron_rank,
+                "prevPlayerName": prev_name,
+                "prevPlayerValue": prev_value,
+                "gapToPrev": gap_to_prev,
+            }
+
         if leaders_df is None or leaders_df.empty:
             return {
                 "category": category,
